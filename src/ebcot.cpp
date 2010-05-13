@@ -1,6 +1,10 @@
 #include <iostream>
+#include <cmath>
 #include "ImagenES.h"
 #include "FichBits.h"
+
+#define SIGNO 4
+
 
 using namespace std;
 
@@ -69,20 +73,58 @@ int calculaContexto(int h, int v, int d, int subbanda){
 		case LH:
 		return matrizContextoLL[h][v][d];
 		break;
-		case HL;
-
+		case HL:
 		break;
-
-		case HH;
-
-
-
+		case HH:
 		break;
+		case SIGNO:
+		break;
+	}
+}
 
+bool obtenerBitsSignificativos(bool **m, int ancho, int alto, int i, int j, int *h, int *v, int *d){
 
+	bool r = false;
+	h = v = d = 0;
+
+	// Comprobamos la vertical
+	if( i < alto && m[i-1][j]){
+		v++;
+		r = true;
+	}
+	if( i >= 0 && m[i+1][j]){
+		v++;
+		r=true;
+	}
+	//Comprobamos la horizontal
+	if( j >= 0 && m[i][j-1]){
+		h++;
+		r = true;
+	}
+	if( j < ancho && m[i][j+1]){
+		h++;
+		r=true;
 	}
 
+	// Comprabamos las diagonales	
+	if( i >= 0 && j >= 0 && m[i-1][j-1]){
+		d++;
+		r = true;
+	}
+	if( i >= 0 && j < ancho && m[i-1][j+1]){
+		d++;
+		r = true;
+	}
+	if( i < alto && j >= 0 && m[i+1][j-1]){
+		d++;
+		r = true;
+	}
+	if( i < alto && j < ancho && m[i+1][j+1]){
+		d++;
+		r = true;
+	}
 
+		return r;
 }
 
 int main (int argc, char const *argv[])
@@ -95,54 +137,125 @@ int main (int argc, char const *argv[])
 	inicializaLL();
 	ReservaPlano(64,64,&BloqueEj);
 
-	CargaBloque(fichero, &anchoB1,&altoB1, &nivel, &subbanda,BloqueEj);
+	CargaBloque(fichero, &anchoB1, &altoB1, &nivel, &subbanda,BloqueEj);
 
-	// Saber cuantos planos de bits necesitaremos
+	/**
+	/*	Plano para guardar el signo de los valores a comprimir
+	/*	true es negativo
+	/*	false es positivo
+	**/
+	bool **signo;
+	
+	/**
+	/*	Matriz de significacia
+	**/
+	bool **significancia;
+	
+	/**
+	/* Matriz de refinamiento
+	**/
+	bool **refinamiento;
+	
+	// Saber cuantos planos de bits necesitaremos	
 	int max = 0;
-	for(int i = 0; i < anchoB1; i++){
-		for(int j = 0; j < altoB1){
-			if(max < BloqueEj[i][j])
+	int aux = 0;
+
+	signo = new bool*[altoB1];
+	significancia = new bool*[altoB1];
+	refinamiento = new bool*[altoB1];
+	for(int i = 0; i < altoB1; i++){
+		
+		signo[i] = new bool[anchoB1];
+		significancia[i] = new bool[anchoB1];
+		refinamiento[i] = new bool[anchoB1];
+		for(int j = 0; j < anchoB1; j++){
+			significancia[i][j] = false;
+			refinamiento[i][j] = false;
+			aux = BloqueEj[i][j];
+			// Necesitamos todo en valor absoluto para saber cual es el mas grande
+			if(aux < 0){ // Si es negativo
+				signo[i][j] = true;		//Marcamos que es negativo
+				aux = aux * (-1);	//Lo convertimos a positivo
+			} else {	// Si es positivo
+				signo[i][j] = false;	// Marcamos que es positivo
+			}
+			if(max < aux)
 			{
-				max = BloqueEj[i][j];
+				max = aux;
 			}
 		}
 	}
 
-	
+
 	int numeroDePlanos = 0;
 	for(int i = 32; i > 0; i--)
 	{
-		if(max & (1<<i-1) == 1)
+		// El valor maximo ya esta en valor absoluto
+		if( (max & (1<<i-1)) > 0 )
 		{
 			numeroDePlanos = i;
 			break;
 		}
 	}
-	
-	cout << "El valor max es = " + max "\nEl numero de planos a crear es de " + numeroDePlanos;
-	
-	//Crear los planos de bits rellenandolos
+
+	cout << "El valor max es = " << max << "\nEl numero de planos a crear es de " << numeroDePlanos << endl;
+
+	// Crear los planos de bits rellenandolos
+	char ***PlanoDeBits;
+	PlanoDeBits = new char ** [numeroDePlanos];
+	for(int n = 0; n < numeroDePlanos; n++)
+	{
+		PlanoDeBits[n] = new char *[altoB1];
+		for(int i=0;i<altoB1;i++){
+			PlanoDeBits[n][i] = new char[anchoB1];
+			for(int j=0;j<anchoB1;j++){
+				if( (aux & (1 << n)) > 0)
+					PlanoDeBits[n][i][j]=true;
+				else 
+					PlanoDeBits[n][i][j]=false;
+			}
+		}
+
+	}
 
 	InicializaEscritura(ficherosal);
-	FILE *^FCtxt=fopen("ej.ct1","wb");
-
-	for(int i=0;i<anchoB1;i++){
-		for(int j=0;j<altoB1;j++){
-
-
-		// Hacer las tres pasadas
-
-
-
-
+	FILE *FCtxt=fopen("ej.ct1","wb");
+	int h,v,d;
+	for(int n = numeroDePlanos-1; n >= 0; n--){
+		for(int i=0; i<altoB1; i++){
+			for(int j=0; j<anchoB1; j++){
+				if(significancia[i][j] == false && obtenerBitsSignificativos(significancia, anchoB1, altoB1,i, j, &h, &v, &d))
+				{
+					if(PlanoDeBits[n][i][j]){
+						// Escribimos el bit
+						EscribeBit(1);
+						
+						// Escribimos contexto
+						putc(calculaContexto(h,v,d,subbanda), FCtxt);
+						
+						// Escribimos signo
+						EscribeBit(signo[i][j]);
+						
+						//Escribimos contexto de signo
+						putc(calculaContexto(h,v,d,SIGNO), FCtxt);
+					}
+					else
+					{
+						// Escribimos el bit
+						EscribeBit(0);
+					
+						// Escribimos contexto
+						putc(calculaContexto(h,v,d,subbanda), FCtxt);
+					}
+				}
+			}
 		}
 	}
+
 
 	FinalizaEscritura();
 	fclose(FCtxt);
 	GuardaBloque(ficherosal,anchoB1,altoB1,nivel,subbanda,BloqueEj);        
 
-
-	cout<< "Esto algun dia ira";
 	return 0;
 }
