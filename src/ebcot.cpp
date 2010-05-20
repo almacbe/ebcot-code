@@ -9,13 +9,13 @@
 
 using namespace std;
 
-int matrizContextoLL[3][3][5];
+char matrizContextoLL[3][3][5];
 
-int matrizContextoHL[3][3][5];
+char matrizContextoHL[3][3][5];
 
-int matrizContextoHH[3][3][5];
+char matrizContextoHH[3][3][5];
 
-int matrizContextoSigno[3][3][5];
+char matrizContextoSigno[3][3][5];
 
 void inicializaLL(){
 
@@ -175,7 +175,7 @@ void inicializaHH(){
 	matrizContextoHH[2][2][4] = 8;
 }
 
-int calculaContexto(int h, int v, int d, int subbanda){
+char calculaContexto(int h, int v, int d, int subbanda){
 
 	switch(subbanda){
 		case LL:
@@ -191,10 +191,12 @@ int calculaContexto(int h, int v, int d, int subbanda){
 		case SIGNO:
 		return matrizContextoSigno[h][v][d];
 		break;
+		default:
+		//ESTO SIGNIFICA ERROR
+		return -100;
 	}
 
-//ESTO SIGNIFICA ERROR
-return -100;
+
 }
 
 bool obtenerBitsSignificativos(bool **m, int ancho, int alto, int i, int j, int *h, int *v, int *d){
@@ -249,6 +251,9 @@ int main (int argc, char const *argv[])
 	char fichero[20]="test/lena.bl1";
 	char ficherosal[20]="test/ej.bi1";
 	int **BloqueEj;
+	
+	InicializaEscritura(ficherosal);
+	FILE *FCtxt=fopen("test/ej.ct1","w");
 
 	inicializaLL();
 	ReservaPlano(64,64,&BloqueEj);
@@ -334,14 +339,13 @@ int main (int argc, char const *argv[])
 
 	}
 
-	InicializaEscritura(ficherosal);
-	FILE *FCtxt=fopen("ej.ct1","wb");
 	int h,v,d;
+	char contexto;
 	
-	cout<<endl<<"Empieza propagacion"<<endl;
 	for(int n = numeroDePlanos-1; n >= 0; n--){
-		
+		cout << "Comienza la codificacion del plano " << n << endl;
 		// Propagacion
+		cout<<"Empieza propagacion" << endl;
 		for(int i=0; i<altoB1; i++){
 			for(int j=0; j<anchoB1; j++){
 				if(significancia[i][j] == false && obtenerBitsSignificativos(significancia, anchoB1, altoB1,i, j, &h, &v, &d))
@@ -373,10 +377,9 @@ int main (int argc, char const *argv[])
 		
 		// Refinamiento
 
-	cout<<endl<<"Empieza refinamiento"<<endl;
+	cout<<"Empieza refinamiento"<<endl;
 		for(int i=0; i<altoB1; i++){
 			for(int j=0; j<anchoB1; j++){
-				int contexto;
 				if(significancia[i][j]){
 					EscribeBit(PlanoDeBits[n][i][j]);
 					if(!refinamiento[i][j]){
@@ -393,7 +396,7 @@ int main (int argc, char const *argv[])
 		}
 		
 		// Limpieza
-		cout<<endl<<"Empieza limpieza"<<endl;
+		cout<<"Empieza limpieza"<<endl << endl;
 		for(int i=0; i<altoB1; i++){
 			int contexto;
 			for(int j=0; j<anchoB1; j++){
@@ -407,9 +410,10 @@ int main (int argc, char const *argv[])
 		}
 	}
 
+	GuardaBloque(ficherosal,anchoB1,altoB1,nivel,subbanda,BloqueEj);        
+
 	FinalizaEscritura();
 	fclose(FCtxt);
-	GuardaBloque(ficherosal,anchoB1,altoB1,nivel,subbanda,BloqueEj);        
 
 	return 0;
 }
