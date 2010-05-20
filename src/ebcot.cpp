@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <fstream>
 #include "ImagenES.h"
 #include "FichBits.h"
 
@@ -70,10 +71,108 @@ void inicializaLL(){
 
 void inicializaHL(){
 	
+
+matrizContextoHL[0][0][0] = 0;
+
+	matrizContextoHL[0][0][1] = 1;
+
+	matrizContextoHL[0][0][2] = 2;
+	matrizContextoHL[0][0][3] = 2;
+	matrizContextoHL[0][0][4] = 2;
+
+	matrizContextoHL[0][1][0] = 5;
+	matrizContextoHL[0][1][1] = 6;
+	matrizContextoHL[0][1][2] = 6;
+	matrizContextoHL[0][1][3] = 6;
+	matrizContextoHL[0][1][4] = 6;
+
+	matrizContextoHL[0][2][0] = 8;
+	matrizContextoHL[0][2][1] = 8;
+	matrizContextoHL[0][2][2] = 8;
+	matrizContextoHL[0][2][3] = 8;
+	matrizContextoHL[0][2][4] = 8;
+
+	matrizContextoHL[1][0][0] = 3;
+
+	matrizContextoHL[1][0][1] = 3;
+	matrizContextoHL[1][0][2] = 3;
+	matrizContextoHL[1][0][3] = 3;
+	matrizContextoHL[1][0][4] = 3;
+
+	matrizContextoHL[1][1][0] = 7;
+	matrizContextoHL[1][1][1] = 7;
+	matrizContextoHL[1][1][2] = 7;
+	matrizContextoHL[1][1][3] = 7;
+	matrizContextoHL[1][1][4] = 7;
+
+	matrizContextoHL[2][0][0] = 4;
+	matrizContextoHL[2][0][1] = 4;
+	matrizContextoHL[2][0][2] = 4;
+	matrizContextoHL[2][0][3] = 4;
+	matrizContextoHL[2][0][4] = 4;
+	matrizContextoHL[2][1][0] = 7;
+	matrizContextoHL[2][1][1] = 7;
+	matrizContextoHL[2][1][2] = 7;
+	matrizContextoHL[2][1][3] = 7;
+	matrizContextoHL[2][1][4] = 7;
+	matrizContextoHL[2][2][0] = 8;
+	matrizContextoHL[2][2][1] = 8;
+	matrizContextoHL[2][2][2] = 8;
+	matrizContextoHL[2][2][3] = 8;
+	matrizContextoHL[2][2][4] = 8;
+
+
 }
 
 void inicializaHH(){
-	
+	matrizContextoHH[0][0][0] = 0;
+
+	matrizContextoHH[0][0][1] = 3;
+
+	matrizContextoHH[0][0][2] = 6;
+	matrizContextoHH[0][0][3] = 8;
+	matrizContextoHH[0][0][4] = 8;
+
+	matrizContextoHH[0][1][0] = 1;
+	matrizContextoHH[0][1][1] = 4;
+	matrizContextoHH[0][1][2] = 7;
+	matrizContextoHH[0][1][3] = 8;
+	matrizContextoHH[0][1][4] = 8;
+
+	matrizContextoHH[0][2][0] = 2;
+	matrizContextoHH[0][2][1] = 5;
+	matrizContextoHH[0][2][2] = 7;
+	matrizContextoHH[0][2][3] = 8;
+	matrizContextoHH[0][2][4] = 8;
+
+	matrizContextoHH[1][0][0] = 1;
+
+	matrizContextoHH[1][0][1] = 4;
+	matrizContextoHH[1][0][2] = 7;
+	matrizContextoHH[1][0][3] = 8;
+	matrizContextoHH[1][0][4] = 8;
+
+	matrizContextoHH[1][1][0] = 2;
+	matrizContextoHH[1][1][1] = 5;
+	matrizContextoHH[1][1][2] = 7;
+	matrizContextoHH[1][1][3] = 8;
+	matrizContextoHH[1][1][4] = 8;
+
+	matrizContextoHH[2][0][0] = 2;
+	matrizContextoHH[2][0][1] = 5;
+	matrizContextoHH[2][0][2] = 7;
+	matrizContextoHH[2][0][3] = 8;
+	matrizContextoHH[2][0][4] = 8;
+	matrizContextoHH[2][1][0] = 2;
+	matrizContextoHH[2][1][1] = 5;
+	matrizContextoHH[2][1][2] = 7;
+	matrizContextoHH[2][1][3] = 8;
+	matrizContextoHH[2][1][4] = 8;
+	matrizContextoHH[2][2][0] = 2;
+	matrizContextoHH[2][2][1] = 5;
+	matrizContextoHH[2][2][2] = 7;
+	matrizContextoHH[2][2][3] = 8;
+	matrizContextoHH[2][2][4] = 8;
 }
 
 int calculaContexto(int h, int v, int d, int subbanda){
@@ -84,7 +183,7 @@ int calculaContexto(int h, int v, int d, int subbanda){
 		return matrizContextoLL[h][v][d];
 		break;
 		case HL:
-		return matrizContextHL[h][v][d];
+		return matrizContextoHL[h][v][d];
 		break;
 		case HH:
 		return matrizContextoHH[h][v][d];
@@ -93,6 +192,9 @@ int calculaContexto(int h, int v, int d, int subbanda){
 		return matrizContextoSigno[h][v][d];
 		break;
 	}
+
+//ESTO SIGNIFICA ERROR
+return -100;
 }
 
 bool obtenerBitsSignificativos(bool **m, int ancho, int alto, int i, int j, int *h, int *v, int *d){
@@ -101,38 +203,39 @@ bool obtenerBitsSignificativos(bool **m, int ancho, int alto, int i, int j, int 
 	h = v = d = 0;
 
 	// Comprobamos la vertical
-	if( i < alto && m[i-1][j]){
+	if( i >0 && m[i-1][j]){
 		v++;
 		r = true;
 	}
-	if( i >= 0 && m[i+1][j]){
+
+	if( i < alto-1  && m[i+1][j]){
 		v++;
 		r=true;
 	}
 	//Comprobamos la horizontal
-	if( j >= 0 && m[i][j-1]){
+	if( j > 0 && m[i][j-1]){
 		h++;
 		r = true;
 	}
-	if( j < ancho && m[i][j+1]){
+	if( j < ancho-1 && m[i][j+1]){
 		h++;
 		r=true;
 	}
 
 	// Comprabamos las diagonales	
-	if( i >= 0 && j >= 0 && m[i-1][j-1]){
+	if( i > 0 && j >0 && m[i-1][j-1]){
 		d++;
 		r = true;
 	}
-	if( i >= 0 && j < ancho && m[i-1][j+1]){
+	if( i >	 0 && j < ancho-1 && m[i-1][j+1]){
 		d++;
 		r = true;
 	}
-	if( i < alto && j >= 0 && m[i+1][j-1]){
+	if( i < alto-1 && j > 0 && m[i+1][j-1]){
 		d++;
 		r = true;
 	}
-	if( i < alto && j < ancho && m[i+1][j+1]){
+	if( i < alto-1 && j < ancho-1 && m[i+1][j+1]){
 		d++;
 		r = true;
 	}
@@ -153,19 +256,19 @@ int main (int argc, char const *argv[])
 	CargaBloque(fichero, &anchoB1, &altoB1, &nivel, &subbanda,BloqueEj);
 
 	/**
-	/*	Plano para guardar el signo de los valores a comprimir
-	/*	true es negativo
-	/*	false es positivo
+	Plano para guardar el signo de los valores a comprimir
+		true es negativo
+		false es positivo
 	**/
 	bool **signo;
 	
 	/**
-	/*	Matriz de significacia
+		Matriz de significacia
 	**/
 	bool **significancia;
 	
 	/**
-	/* Matriz de refinamiento
+	 Matriz de refinamiento
 	**/
 	bool **refinamiento;
 	
@@ -235,6 +338,7 @@ int main (int argc, char const *argv[])
 	FILE *FCtxt=fopen("ej.ct1","wb");
 	int h,v,d;
 	
+	cout<<endl<<"Empieza propagacion"<<endl;
 	for(int n = numeroDePlanos-1; n >= 0; n--){
 		
 		// Propagacion
@@ -268,6 +372,8 @@ int main (int argc, char const *argv[])
 		}
 		
 		// Refinamiento
+
+	cout<<endl<<"Empieza refinamiento"<<endl;
 		for(int i=0; i<altoB1; i++){
 			for(int j=0; j<anchoB1; j++){
 				int contexto;
@@ -287,7 +393,9 @@ int main (int argc, char const *argv[])
 		}
 		
 		// Limpieza
+		cout<<endl<<"Empieza limpieza"<<endl;
 		for(int i=0; i<altoB1; i++){
+			int contexto;
 			for(int j=0; j<anchoB1; j++){
 				if(!obtenerBitsSignificativos(significancia, anchoB1, altoB1,i, j, &h, &v, &d)){
 					EscribeBit(PlanoDeBits[n][i][j]);
