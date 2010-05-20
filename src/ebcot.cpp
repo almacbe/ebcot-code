@@ -14,6 +14,8 @@ int matrizContextoHL[3][3][5];
 
 int matrizContextoHH[3][3][5];
 
+int matrizContextoSigno[3][3][5];
+
 void inicializaLL(){
 
 	matrizContextoLL[0][0][0] = 0;
@@ -66,6 +68,14 @@ void inicializaLL(){
 	matrizContextoLL[2][2][4] = 8;
 }
 
+void inicializaHL(){
+	
+}
+
+void inicializaHH(){
+	
+}
+
 int calculaContexto(int h, int v, int d, int subbanda){
 
 	switch(subbanda){
@@ -74,10 +84,13 @@ int calculaContexto(int h, int v, int d, int subbanda){
 		return matrizContextoLL[h][v][d];
 		break;
 		case HL:
+		return matrizContextHL[h][v][d];
 		break;
 		case HH:
+		return matrizContextoHH[h][v][d];
 		break;
 		case SIGNO:
+		return matrizContextoSigno[h][v][d];
 		break;
 	}
 }
@@ -221,7 +234,10 @@ int main (int argc, char const *argv[])
 	InicializaEscritura(ficherosal);
 	FILE *FCtxt=fopen("ej.ct1","wb");
 	int h,v,d;
+	
 	for(int n = numeroDePlanos-1; n >= 0; n--){
+		
+		// Propagacion
 		for(int i=0; i<altoB1; i++){
 			for(int j=0; j<anchoB1; j++){
 				if(significancia[i][j] == false && obtenerBitsSignificativos(significancia, anchoB1, altoB1,i, j, &h, &v, &d))
@@ -229,13 +245,13 @@ int main (int argc, char const *argv[])
 					if(PlanoDeBits[n][i][j]){
 						// Escribimos el bit
 						EscribeBit(1);
-						
+
 						// Escribimos contexto
 						putc(calculaContexto(h,v,d,subbanda), FCtxt);
-						
+
 						// Escribimos signo
 						EscribeBit(signo[i][j]);
-						
+
 						//Escribimos contexto de signo
 						putc(calculaContexto(h,v,d,SIGNO), FCtxt);
 					}
@@ -243,15 +259,45 @@ int main (int argc, char const *argv[])
 					{
 						// Escribimos el bit
 						EscribeBit(0);
-					
+						
 						// Escribimos contexto
 						putc(calculaContexto(h,v,d,subbanda), FCtxt);
 					}
 				}
 			}
 		}
-	}
+		
+		// Refinamiento
+		for(int i=0; i<altoB1; i++){
+			for(int j=0; j<anchoB1; j++){
+				int contexto;
+				if(significancia[i][j]){
+					EscribeBit(PlanoDeBits[n][i][j]);
+					if(!refinamiento[i][j]){
+						if(obtenerBitsSignificativos(significancia, anchoB1, altoB1,i, j, &h, &v, &d))
+							contexto=15;
+						else contexto=14;
+						refinamiento[i][j]=true;
+					}
+					else contexto=16;
 
+					putc(contexto,FCtxt);
+				}
+			}
+		}
+		
+		// Limpieza
+		for(int i=0; i<altoB1; i++){
+			for(int j=0; j<anchoB1; j++){
+				if(!obtenerBitsSignificativos(significancia, anchoB1, altoB1,i, j, &h, &v, &d)){
+					EscribeBit(PlanoDeBits[n][i][j]);
+					contexto = 9;
+					putc(contexto,FCtxt);
+				}
+				
+			}
+		}
+	}
 
 	FinalizaEscritura();
 	fclose(FCtxt);
