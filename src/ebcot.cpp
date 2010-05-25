@@ -175,20 +175,20 @@ void inicializaHH() {
 char calculaContexto(int h, int v, int d, int subbanda) {
 
 	switch (subbanda) {
-	case LL:
-	case LH:
+		case LL:
+		case LH:
 		return matrizContextoLL[h][v][d];
 		break;
-	case HL:
+		case HL:
 		return matrizContextoHL[h][v][d];
 		break;
-	case HH:
+		case HH:
 		return matrizContextoHH[h][v][d];
 		break;
-	case SIGNO:
+		case SIGNO:
 		return matrizContextoSigno[h][v][d];
 		break;
-	default:
+		default:
 		//ESTO SIGNIFICA ERROR
 		return -100;
 	}
@@ -196,7 +196,7 @@ char calculaContexto(int h, int v, int d, int subbanda) {
 }
 
 bool obtenerVecinosSignificativos(char **plano, bool **m, int ancho, int alto, int i, int j,
-		int *h, int *v, int *d) {
+int *h, int *v, int *d) {
 
 	bool r = false;
 	*h = *v = *d = 0;
@@ -296,60 +296,61 @@ int main(int argc, char const *argv[]) {
 			// Necesitamos todo en valor absoluto para saber cual es el mas grande
 			if (aux < 0) { // Si es negativo
 				signo[i][j] = true; //Marcamos que es negativo
-				aux = aux * (-1); //Lo convertimos a positivo
-			} else { // Si es positivo
-				signo[i][j] = false; // Marcamos que es positivo
-			}
-			BloqueEj[i][j] = aux;
-			if (max < aux) {
-				max = aux;
-			}
-		}
+			aux = aux * (-1); //Lo convertimos a positivo
+		} else { // Si es positivo
+			signo[i][j] = false; // Marcamos que es positivo
 	}
+	BloqueEj[i][j] = aux;
+	if (max < aux) {
+		max = aux;
+	}
+}
+}
 
-	int numeroDePlanos = 0;
-	for (int i = 32; i > 0; i--) {
+int numeroDePlanos = 0;
+for (int i = 32; i > 0; i--) {
 		// El valor maximo ya esta en valor absoluto
-		if ((max & (1 << i - 1)) > 0) {
-			numeroDePlanos = i;
-			break;
-		}
+	if ((max & (1 << i - 1)) > 0) {
+		numeroDePlanos = i;
+		break;
 	}
+}
 
-	cout << "El valor max es = " << max
-			<< "\nEl numero de planos a crear es de " << numeroDePlanos << endl;
+cout << "El valor max es = " << max
+	<< "\nEl numero de planos a crear es de " << numeroDePlanos << endl;
 
 	// Crear los planos de bits rellenandolos
-	char ***PlanoDeBits;
-	PlanoDeBits = new char **[numeroDePlanos];
-	for (int n = 0; n < numeroDePlanos; n++) {
-		PlanoDeBits[n] = new char *[altoB1];
-		for (int i = 0; i < altoB1; i++) {
-			PlanoDeBits[n][i] = new char[anchoB1];
-			for (int j = 0; j < anchoB1; j++) {
-				if ((BloqueEj[i][j] & (1 << n)) > 0)
-					PlanoDeBits[n][i][j] = 1;
-				else
-					PlanoDeBits[n][i][j] = 0;
-			}
+char ***PlanoDeBits;
+PlanoDeBits = new char **[numeroDePlanos];
+for (int n = 0; n < numeroDePlanos; n++) {
+	PlanoDeBits[n] = new char *[altoB1];
+	for (int i = 0; i < altoB1; i++) {
+		PlanoDeBits[n][i] = new char[anchoB1];
+		for (int j = 0; j < anchoB1; j++) {
+			if ((BloqueEj[i][j] & (1 << n)) > 0)
+				PlanoDeBits[n][i][j] = 1;
+			else
+				PlanoDeBits[n][i][j] = 0;
 		}
-
 	}
 
-	int h, v, d;
-	char contexto;
+}
 
-	for (int n = numeroDePlanos - 1; n >= 0; n--) {
-		bitsPropagacion = bitsRefinamiento = bitsLimpieza = bitsGenProp
-				= bitsGenRef = bitsGenLimp = 0;
+int h, v, d;
+char contexto;
 
-		cout << "Comienza la codificacion del plano " << n << endl;
+for (int n = numeroDePlanos - 1; n >= 0; n--) {
+	bitsPropagacion = bitsRefinamiento = bitsLimpieza = bitsGenProp
+		= bitsGenRef = bitsGenLimp = 0;
+
+	cout << "Comienza la codificacion del plano " << n << endl;
 		// Propagacion
-		cout << "Empieza propagacion ... ";
-		for (int i = 0; i < altoB1; i++) {
-			for (int j = 0; j < anchoB1; j++) {
+	cout << "Empieza propagacion ... ";
+	for(int k = 0; k < altoB1; k = k + 4){
+		for (int j = 0; j < anchoB1; j++) {
+			for (int i = k; i < k + 4; i++) {
 				if (!significativo[i][j] && obtenerVecinosSignificativos( PlanoDeBits[n],
-						significativo, anchoB1, altoB1, i, j, &h, &v, &d)) {
+				significativo, anchoB1, altoB1, i, j, &h, &v, &d)) {
 					if (PlanoDeBits[n][i][j]) {
 						// Escribimos el bit
 						EscribeBit(1);
@@ -384,27 +385,29 @@ int main(int argc, char const *argv[]) {
 				}
 			}
 		}
-		cout << "Bits codificados " << bitsPropagacion << endl;
+	}
+	cout << "Bits codificados " << bitsPropagacion << endl;
 
 		// Refinamiento
 
-		cout << "Empieza refinado ... ";
-		for (int i = 0; i < altoB1; i++) {
-			for (int j = 0; j < anchoB1; j++) {
+	cout << "Empieza refinado ... ";
+	for(int k = 0; k < altoB1; k = k + 4){
+		for (int j = 0; j < anchoB1; j++) {
+			for (int i = k; i < k + 4; i++) {
 				if (!codificado[i][j] && significativo[i][j]) {
 					EscribeBit(PlanoDeBits[n][i][j]);
 					if (refinado[i][j]) {
 						contexto = 16;
 					} else {
 						if (obtenerVecinosSignificativos(PlanoDeBits[n], significativo,
-								anchoB1, altoB1, i, j, &h, &v, &d))
+							anchoB1, altoB1, i, j, &h, &v, &d))
 							contexto = 15;
 						else
 							contexto = 14;
-						
+
 						refinado[i][j] = true;
 					}
-					
+
 					putc(contexto, FCtxt);
 
 					// Marcamos el bit como que ya esta codificado
@@ -415,13 +418,14 @@ int main(int argc, char const *argv[]) {
 				}
 			}
 		}
-		
-		cout << "Bits codificados " << bitsRefinamiento << endl;
-		
+	}
+	cout << "Bits codificados " << bitsRefinamiento << endl;
+
 		// Limpieza
-		cout << "Empieza limpieza ... ";
-		for (int i = 0; i < altoB1; i++) {
-			for (int j = 0; j < anchoB1; j++) {
+	cout << "Empieza limpieza ... ";
+	for(int k = 0; k < altoB1; k = k + 4){
+		for (int j = 0; j < anchoB1; j++) {
+			for (int i = k; i < k + 4; i++) {
 				if (!codificado[i][j]) {
 					if (PlanoDeBits[n][i][j]) {
 						// Escribimos el bit
@@ -429,14 +433,14 @@ int main(int argc, char const *argv[]) {
 
 						// Obtenemos los vecinos significativos
 						obtenerVecinosSignificativos( PlanoDeBits[n], significativo, anchoB1,
-								altoB1, i, j, &h, &v, &d);
+							altoB1, i, j, &h, &v, &d);
 
 						//Escribimos contexto de signo
 						putc(calculaContexto(h, v, d, SIGNO), FCtxt);
-						
+
 						// Escribimos el signo
 						EscribeBit(signo[i][j]);
-						
+
 						bitsGenLimp += 4;
 					} else {
 						// Escribimos el bit
@@ -444,11 +448,11 @@ int main(int argc, char const *argv[]) {
 
 						// Obtenemos los vecinos significativos
 						obtenerVecinosSignificativos( PlanoDeBits[n], significativo, anchoB1,
-								altoB1, i, j, &h, &v, &d);
+							altoB1, i, j, &h, &v, &d);
 
 						// Escribimos contexto
 						putc(calculaContexto(h, v, d, SIGNO), FCtxt);
-						
+
 						bitsGenLimp += 2;
 					}
 					bitsLimpieza++;
@@ -459,18 +463,19 @@ int main(int argc, char const *argv[]) {
 
 			}
 		}
-		cout << "Bits codificados " << bitsLimpieza << endl;
-
-		cout << "Total de bits codificados " << bitsLimpieza + bitsPropagacion + bitsRefinamiento << endl;
-
-		cout << "Total de bits generados " << bitsGenLimp + bitsGenProp
-				+ bitsGenRef << endl << endl;
 	}
+	cout << "Bits codificados " << bitsLimpieza << endl;
 
-	GuardaBloque(ficherosal, anchoB1, altoB1, nivel, subbanda, BloqueEj);
+	cout << "Total de bits codificados " << bitsLimpieza + bitsPropagacion + bitsRefinamiento << endl;
 
-	FinalizaEscritura();
-	fclose(FCtxt);
+	cout << "Total de bits generados " << bitsGenLimp + bitsGenProp
+		+ bitsGenRef << endl << endl;
+}
 
-	return 0;
+GuardaBloque(ficherosal, anchoB1, altoB1, nivel, subbanda, BloqueEj);
+
+FinalizaEscritura();
+fclose(FCtxt);
+
+return 0;
 }
