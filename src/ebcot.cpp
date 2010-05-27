@@ -174,45 +174,46 @@ void inicializaHH() {
 }
 
 int calculaContextoSigno(int h, int v,bool ** significativo, bool **signo,int ancho, int alto) {
-	
-int ho,ver;
-if(h==0 || v==0 || v==ancho || h==alto){
-ho=ver=0;
-}
 
-else if(significativo[h-1][v] && significativo[h+1][v] && signo[h-1][v] && signo[h+1][v]){
-ho=1;
-}
-else if(significativo[h-1][v] && significativo[h+1][v] && !signo[h-1][v] && !signo[h+1][v]){
-ho=-1;
-}
-else if(significativo[h][v-1] && significativo[h][v+1] && signo[h][v-1] && signo[h][v+1]){
-ver=1;
-}
-else if(significativo[h][v-1] && significativo[h][v+1] && !signo[h][v-1] && !signo[h][v+1]){
-ver=-1;
-}
-else{
-ho=ver=0;
-}
+	int ho,ver;
+	if(h==0 || v==0 || v==ancho || h==alto){
+		ho=ver=0;
+	}
 
-if(ho==0 && ver==0){
-return 9;
-}
-if((ho==0 && ver==1)||(ho==0 && ver==-1)){
-return 10;
-}
-if((ho==1 && ver==1)||(ho==-1 && ver==-1)){
-return 13 ;
-}
-if((ho==1 && ver==0)||(ho==-1 && ver==0)){
-return 12;
-}
-if((ho==1 && ver==-1)||(ho==-1 && ver==1)){
-return 11;
-}
+	else if(significativo[h-1][v] && significativo[h+1][v] && signo[h-1][v] && signo[h+1][v]){
+		ho=1;
+	}
+	else if(significativo[h-1][v] && significativo[h+1][v] && !signo[h-1][v] && !signo[h+1][v]){
+		ho=-1;
+	}
+	else if(significativo[h][v-1] && significativo[h][v+1] && signo[h][v-1] && signo[h][v+1]){
+		ver=1;
+	}
+	else if(significativo[h][v-1] && significativo[h][v+1] && !signo[h][v-1] && !signo[h][v+1]){
+		ver=-1;
+	}
+	else{
+		ho=ver=0;
+	}
 
+	if(ho==0 && ver==0){
+		return 9;
+	}
+	if((ho==0 && ver==1)||(ho==0 && ver==-1)){
+		return 10;
+	}
+	if((ho==1 && ver==1)||(ho==-1 && ver==-1)){
+		return 13 ;
+	}
+	if((ho==1 && ver==0)||(ho==-1 && ver==0)){
+		return 12;
+	}
+	if((ho==1 && ver==-1)||(ho==-1 && ver==1)){
+		return 11;
+	}
 
+	cerr << "Ha fallado al encontrar un contexto de signo\n";
+	exit(0);
 }
 
 char calculaContexto(int h, int v, int d, int subbanda) {
@@ -235,48 +236,46 @@ char calculaContexto(int h, int v, int d, int subbanda) {
 
 }
 
-bool obtenerVecinosSignificativos(char **plano, bool **m, int ancho, int alto,
-		int i, int j, int *h, int *v, int *d) {
+bool obtenerVecinosSignificativos(bool **m, int ancho, int alto, int i, int j, int *h, int *v, int *d) {
 
 	bool r = false;
 	*h = *v = *d = 0;
-
+	
 	// Comprobamos la vertical
-	if (i > 0 && (m[i - 1][j] || plano[i - 1][j])) {
+	if (i > 0 && m[i - 1][j]) {
 		(*v)++;
 		r = true;
 	}
 
-	if (i < alto - 1 && (m[i + 1][j] || plano[i + 1][j])) {
+	if (i < alto - 1 && m[i + 1][j]) {
 		(*v)++;
 		r = true;
 	}
 
 	//Comprobamos la horizontal
-	if (j > 0 && (m[i][j - 1] || plano[i][j - 1])) {
+	if (j > 0 && m[i][j - 1]) {
 		(*h)++;
 		r = true;
 	}
-	if (j < ancho - 1 && (m[i][j + 1] || plano[i][j + 1])) {
+	if (j < ancho - 1 && m[i][j + 1]) {
 		(*h)++;
 		r = true;
 	}
 
 	// Comprabamos las diagonales	
-	if (i > 0 && j > 0 && (m[i - 1][j - 1] || plano[i - 1][j - 1])) {
+	if (i > 0 && j > 0 && m[i - 1][j - 1]) {
 		(*d)++;
 		r = true;
 	}
-	if (i > 0 && j < ancho - 1 && (m[i - 1][j + 1] || plano[i - 1][j + 1])) {
+	if (i > 0 && j < ancho - 1 && m[i - 1][j + 1]) {
 		(*d)++;
 		r = true;
 	}
-	if (i < alto - 1 && j > 0 && (m[i + 1][j - 1] || plano[i + 1][j - 1])) {
+	if (i < alto - 1 && j > 0 && m[i + 1][j - 1]) {
 		(*d)++;
 		r = true;
 	}
-	if (i < alto - 1 && j < ancho - 1 && (m[i + 1][j + 1]
-			|| plano[i + 1][j + 1])) {
+	if (i < alto - 1 && j < ancho - 1 && m[i + 1][j + 1]) {
 		(*d)++;
 		r = true;
 	}
@@ -285,35 +284,19 @@ bool obtenerVecinosSignificativos(char **plano, bool **m, int ancho, int alto,
 }
 
 int validarArgumentos(int argc, char const **argv){
-	if (argc>=3 && argc<=4){
-		
+	if (argc == 3 || argc == 4){	
 		return 1;
 	}
 	
-	
 	cout << "Se han pasado " << argc << " argumentos:" << endl;
-	cout << "El formato para codificar es: ebcot archivo bloque "<<endl;
-	cout << "El formato para decodificar es: ebcot archivo bloque decodificar"<<endl;
+	cout << "El formato para codificar es: ebcot nombre_de_bloque (sin la extension) numero_de_bloques "<<endl;
+	cout << "El formato para decodificar es: ebcot nombre_de_bloque (sin la extension) numero_de_bloques decodificar"<<endl;
 	return 0;
-		
-	
-
-
 }
 
 int main(int argc, char const *argv[]) {
 	// Nombre del fichero del bloque
-	
 	char fichero[20] = "test/lena.bl1";
-
-	
-		
-	
-	
-    	
-  
-
-	
 
 	// Nombre del fichero de codificacion de los bits
 	char ficheroBinario[20] = "test/ej.bi1";
@@ -371,7 +354,7 @@ int main(int argc, char const *argv[]) {
 
 	// Variables para guardar los bits de la parte alta y baja 
 	// de los numero guardados en el fichero de tamaños
-	char ParteAlta, ParteBaja;
+	unsigned char ParteAlta, ParteBaja;
 	
 	// Variables para cargar los valores de bits codificados en cada pasada, 
 	// son los que se leen del fichero .lbx
@@ -384,24 +367,17 @@ int main(int argc, char const *argv[]) {
 
 	if(validarArgumentos(argc,argv))
 		exit(1);
-		
 
-
+	if(argc == 3)cod_deco=0;
+	else if ( argc == 4) cod_deco=1;
+	else cod_deco = -1;
 	
- 	
-       if(argc==3)cod_deco=0;
-	else cod_deco=1;
-
-     strcopy(fichero,argv[1]);
-
-
-	
+	strcpy(fichero,argv[1]);
 
 	inicializaLL();
 	inicializaHL();
 	inicializaHH();
 	
-
 	if (cod_deco == 0) {
 		InicializaEscritura(ficheroBinario);
 		FCtxt = fopen(ficheroContexto, "wb");
@@ -475,11 +451,16 @@ int main(int argc, char const *argv[]) {
 
 		// Comienza la codificacon
 		putc(anchoBloque, FLength);
+		printf("anchoBloque %d\n", anchoBloque);
 		putc(altoBloque, FLength);
+		printf("altoBloque %d\n", altoBloque);
 		putc(nivel, FLength);
+		printf("nivel %d\n", nivel);
 		putc(subbanda, FLength);
+		printf("subbanda %d\n", subbanda);
 		// Escribimos el plano en el que esta el primer bit significativo
 		putc(numeroDePlanos, FLength);
+		printf("numeroDePlanos %d\n", numeroDePlanos);
 		
 		for (int n = numeroDePlanos - 1; n >= 0; n--) {
 			bitsPropagacion = bitsRefinamiento = bitsLimpieza = bitsGenProp
@@ -491,8 +472,7 @@ int main(int argc, char const *argv[]) {
 				for (int j = 0; j < anchoBloque; j++) {
 					for (int i = k; i < k + 4; i++) {
 						if (!significativo[i][j]
-								&& obtenerVecinosSignificativos(PlanoDeBits[n],
-										significativo, anchoBloque, altoBloque,
+								&& obtenerVecinosSignificativos(significativo, anchoBloque, altoBloque,
 										i, j, &h, &v, &d)) {
 							if (PlanoDeBits[n][i][j]) {
 								// Escribimos el bit
@@ -520,9 +500,6 @@ int main(int argc, char const *argv[]) {
 							// Marcamos el bit como que ya está codificado
 							codificado[i][j] = true;
 
-							// Marcamos el bit como significativo
-							significativo[i][j] = true;
-
 							// Aumentamos el contador de bit codificados en la fase de propagacion
 							bitsPropagacion++;
 						}
@@ -542,8 +519,7 @@ int main(int argc, char const *argv[]) {
 							if (refinado[i][j]) {
 								contexto = 16;
 							} else {
-								if (obtenerVecinosSignificativos(
-										PlanoDeBits[n], significativo,
+								if (obtenerVecinosSignificativos(significativo,
 										anchoBloque, altoBloque, i, j, &h, &v,
 										&d))
 									contexto = 15;
@@ -577,9 +553,9 @@ int main(int argc, char const *argv[]) {
 								EscribeBit(1);
 
 								// Obtenemos los vecinos significativos
-								obtenerVecinosSignificativos(PlanoDeBits[n],
-										significativo, anchoBloque, altoBloque,
-										i, j, &h, &v, &d);
+								obtenerVecinosSignificativos(significativo, 
+										anchoBloque, altoBloque, i, 
+										j, &h, &v, &d);
 
 								// Escribimos contexto
 								putc(calculaContexto(h, v, d, subbanda), FCtxt);
@@ -590,13 +566,16 @@ int main(int argc, char const *argv[]) {
 								//Escribimos contexto de signo
 								putc(calculaContextoSigno(h, v, significativo, signo,anchoBloque,  altoBloque), FCtxt);
 
+								// Marcamos el bit como significativo
+								significativo[i][j] = true;
+								
 								bitsGenLimp += 4;
 							} else {
 								// Escribimos el bit
 								EscribeBit(0);
 
 								// Obtenemos los vecinos significativos
-								obtenerVecinosSignificativos(PlanoDeBits[n],
+								obtenerVecinosSignificativos(
 										significativo, anchoBloque, altoBloque,
 										i, j, &h, &v, &d);
 
@@ -624,7 +603,7 @@ int main(int argc, char const *argv[]) {
 			// Guardamos el numero de bit codificados en propagacion
 			putc(bitsPropagacion / 256, FLength);
 			putc(bitsPropagacion % 256, FLength);
-
+			printf("Parte alta %d , parte baja %d\n", bitsPropagacion / 256, bitsPropagacion % 256);
 			// Guardamos el numero de bit codificados en refinamiento
 			putc(bitsRefinamiento / 256, FLength);
 			putc(bitsRefinamiento % 256, FLength);
@@ -640,7 +619,26 @@ int main(int argc, char const *argv[]) {
 		fclose(FLength);
 
 		LiberaPlano(64, 64, &Bloque);
-
+		
+		for (int n = 0; n < numeroDePlanos; n++) {
+			for (int i = 0; i < altoBloque; i++) {
+				delete [] PlanoDeBits[n][i];
+			}
+			delete [] PlanoDeBits[n];
+		}
+		delete [] PlanoDeBits;
+		
+		for(int i = 0; i < altoBloque; i++)
+		{
+			delete [] signo[i];
+			delete [] significativo[i];
+			delete [] codificado[i];
+			delete [] refinado[i];
+		}
+		delete [] signo;
+		delete [] significativo;
+		delete [] codificado;
+		delete [] refinado;
 	}
 	if (cod_deco == 1) {
 		InicializaLectura(ficheroBinario);
@@ -648,13 +646,18 @@ int main(int argc, char const *argv[]) {
 		FLength = fopen(ficheroLength, "rb");
 
 		anchoBloque = getc(FLength);
+		printf("anchoBloque %d\n", anchoBloque);
 		altoBloque = getc(FLength);
+		printf("altoBloque %d\n", altoBloque);
 		nivel = getc(FLength);
+		printf("nivel %d\n", nivel);
 		subbanda = getc(FLength);
+		printf("subbanda %d\n", subbanda);
 
 		// Leemos el numero de planos de bits que se han creado
 		numeroDePlanos = getc(FLength);
-
+		printf("numeroDePlanos %d\n", numeroDePlanos);
+		
 		// Declarar la memoria de los planos de bits
 		PlanoDeBits = new char **[numeroDePlanos];
 		for (int n = 0; n < numeroDePlanos; n++) {
@@ -690,6 +693,7 @@ int main(int argc, char const *argv[]) {
 			
 			ParteAlta = getc(FLength);
 			ParteBaja = getc(FLength);
+			//printf("Parte alta %d , parte baja %d\n", ParteAlta, ParteBaja);
 			bitsPropagacionCod = ParteAlta * 256 + ParteBaja;
 
 			ParteAlta = getc(FLength);
@@ -707,12 +711,12 @@ int main(int argc, char const *argv[]) {
 				for (int j = 0; j < anchoBloque; j++) {
 					for (int i = k; i < k + 4; i++) {
 						if (!significativo[i][j]
-								&& obtenerVecinosSignificativos(PlanoDeBits[n],
+								&& obtenerVecinosSignificativos(
 										significativo, anchoBloque, altoBloque,
 										i, j, &h, &v, &d)) {
 							// Leemos un bit
 							PlanoDeBits[n][i][j] = LeeBit();
-
+							//printf("%d ",PlanoDeBits[n][i][j]);
 							// Leer contexto asociado bit
 							// FALTA!!!
 							// contexto = getc(Fichero de contexto);
@@ -727,9 +731,6 @@ int main(int argc, char const *argv[]) {
 
 							// Marcamos el bit como que ya está codificado
 							codificado[i][j] = true;
-
-							// Marcamos el bit como significativo
-							significativo[i][j] = true;
 
 							// Aumentamos el contador de bit codificados en la fase de propagacion
 							bitsPropagacion++;
@@ -780,6 +781,8 @@ int main(int argc, char const *argv[]) {
 								// FALTA!!!
 								// contexto = getc(Fichero de contexto);
 								signo[i][j] = LeeBit();
+								// Marcamos el bit como significativo
+								significativo[i][j] = true;
 							}
 							bitsLimpieza++;
 						} else {
@@ -796,7 +799,7 @@ int main(int argc, char const *argv[]) {
 			cout << "Total de bits codificados " << bitsLimpieza
 					+ bitsPropagacion + bitsRefinamiento << endl;
 		}
-		
+
 		FinalizaLectura();
 		fclose(FCtxt);
 		fclose(FLength);
@@ -822,6 +825,24 @@ int main(int argc, char const *argv[]) {
 		}
 		
 		GuardaBloque("test/lenaCod.bl1", anchoBloque, altoBloque, nivel, subbanda,  Bloque);
+		
+			for (int n = 0; n < numeroDePlanos; n++) {
+				for (int i = 0; i < altoBloque; i++) {
+					delete [] PlanoDeBits[n][i];
+				}
+				delete [] PlanoDeBits[n];
+			}
+			delete [] PlanoDeBits;
+
+			for(int i = 0; i < altoBloque; i++)
+			{
+				delete [] signo[i];
+				delete [] significativo[i];
+				delete [] codificado[i];
+			}
+			delete [] signo;
+			delete [] significativo;
+			delete [] codificado;
 	}
 	return 0;
 }
