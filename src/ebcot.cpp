@@ -178,22 +178,27 @@ int calculaContextoSigno(int h, int v,bool ** significativo, bool **signo,int an
 	int ho,ver;
 	if(h==0 || v==0 || v==ancho || h==alto){
 		ho=ver=0;
+		return 9;
 	}
 
-	else if(significativo[h-1][v] && significativo[h+1][v] && signo[h-1][v] && signo[h+1][v]){
+	if(significativo[h-1][v] && significativo[h+1][v] && signo[h-1][v] && signo[h+1][v]){
 		ho=1;
 	}
 	else if(significativo[h-1][v] && significativo[h+1][v] && !signo[h-1][v] && !signo[h+1][v]){
 		ho=-1;
 	}
-	else if(significativo[h][v-1] && significativo[h][v+1] && signo[h][v-1] && signo[h][v+1]){
+	else{
+		ho=0;
+	}
+
+	if(significativo[h][v-1] && significativo[h][v+1] && signo[h][v-1] && signo[h][v+1]){
 		ver=1;
 	}
 	else if(significativo[h][v-1] && significativo[h][v+1] && !signo[h][v-1] && !signo[h][v+1]){
 		ver=-1;
 	}
 	else{
-		ho=ver=0;
+		ver=0;
 	}
 
 	if(ho==0 && ver==0){
