@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include <fstream>
+#include <cstring>
 #include "../headers/ImagenES.h"
 #include "../headers/FichBits.h"
 
@@ -14,7 +15,7 @@ char matrizContextoHL[3][3][5];
 
 char matrizContextoHH[3][3][5];
 
-char matrizContextoSigno[3][3][5];
+
 
 void inicializaLL() {
 
@@ -172,8 +173,46 @@ void inicializaHH() {
 	matrizContextoHH[2][2][4] = 8;
 }
 
-void inicializaMatrizSigno() {
-	matrizContextoSigno[0][0][0] = 0;
+int calculaContextoSigno(int h, int v,bool ** significativo, bool **signo,int ancho, int alto) {
+	
+int ho,ver;
+if(h==0 || v==0 || v==ancho || h==alto){
+ho=ver=0;
+}
+
+else if(significativo[h-1][v] && significativo[h+1][v] && signo[h-1][v] && signo[h+1][v]){
+ho=1;
+}
+else if(significativo[h-1][v] && significativo[h+1][v] && !signo[h-1][v] && !signo[h+1][v]){
+ho=-1;
+}
+else if(significativo[h][v-1] && significativo[h][v+1] && signo[h][v-1] && signo[h][v+1]){
+ver=1;
+}
+else if(significativo[h][v-1] && significativo[h][v+1] && !signo[h][v-1] && !signo[h][v+1]){
+ver=-1;
+}
+else{
+ho=ver=0;
+}
+
+if(ho==0 && ver==0){
+return 9;
+}
+if((ho==0 && ver==1)||(ho==0 && ver==-1)){
+return 10;
+}
+if((ho==1 && ver==1)||(ho==-1 && ver==-1)){
+return 13 ;
+}
+if((ho==1 && ver==0)||(ho==-1 && ver==0)){
+return 12;
+}
+if((ho==1 && ver==-1)||(ho==-1 && ver==1)){
+return 11;
+}
+
+
 }
 
 char calculaContexto(int h, int v, int d, int subbanda) {
@@ -188,9 +227,6 @@ char calculaContexto(int h, int v, int d, int subbanda) {
 		break;
 	case HH:
 		return matrizContextoHH[h][v][d];
-		break;
-	case SIGNO:
-		return matrizContextoSigno[h][v][d];
 		break;
 	default:
 		//ESTO SIGNIFICA ERROR
@@ -249,20 +285,35 @@ bool obtenerVecinosSignificativos(char **plano, bool **m, int ancho, int alto,
 }
 
 int validarArgumentos(int argc, char const **argv){
-	if (argc != 2){
-		cout << argv[0] << " 0/1 (0 - cod -- 1 - deco)" << endl;
+	if (argc>=3 && argc<=4){
+		
 		return 1;
 	}
 	
-	if (atoi(argv[1]) != 0 && atoi(argv[1]) != 1 )
-		return 1;
-		
+	
+	cout << "Se han pasado " << argc << " argumentos:" << endl;
+	cout << "El formato para codificar es: ebcot archivo bloque "<<endl;
+	cout << "El formato para decodificar es: ebcot archivo bloque decodificar"<<endl;
 	return 0;
+		
+	
+
+
 }
 
 int main(int argc, char const *argv[]) {
 	// Nombre del fichero del bloque
+	
 	char fichero[20] = "test/lena.bl1";
+
+	
+		
+	
+	
+    	
+  
+
+	
 
 	// Nombre del fichero de codificacion de los bits
 	char ficheroBinario[20] = "test/ej.bi1";
@@ -305,6 +356,7 @@ int main(int argc, char const *argv[]) {
 	// significatios en la horizontal, vertical
 	// y diagonal
 	int h, v, d;
+	
 
 	// Variable para guardar el contexto que corresponda
 	char contexto;
@@ -333,12 +385,22 @@ int main(int argc, char const *argv[]) {
 	if(validarArgumentos(argc,argv))
 		exit(1);
 		
-	cod_deco = atoi(argv[1]);
+
+
+	
+ 	
+       if(argc==3)cod_deco=0;
+	else cod_deco=1;
+
+     strcopy(fichero,argv[1]);
+
+
+	
 
 	inicializaLL();
 	inicializaHL();
 	inicializaHH();
-	inicializaMatrizSigno();
+	
 
 	if (cod_deco == 0) {
 		InicializaEscritura(ficheroBinario);
@@ -443,7 +505,7 @@ int main(int argc, char const *argv[]) {
 								EscribeBit(signo[i][j]);
 
 								//Escribimos contexto de signo
-								putc(calculaContexto(h, v, d, SIGNO), FCtxt);
+								putc(calculaContextoSigno(h, v, significativo, signo,anchoBloque,  altoBloque), FCtxt);
 
 								bitsGenProp += 4;
 							} else {
@@ -526,7 +588,7 @@ int main(int argc, char const *argv[]) {
 								EscribeBit(signo[i][j]);
 
 								//Escribimos contexto de signo
-								putc(calculaContexto(h, v, d, SIGNO), FCtxt);
+								putc(calculaContextoSigno(h, v, significativo, signo,anchoBloque,  altoBloque), FCtxt);
 
 								bitsGenLimp += 4;
 							} else {
@@ -539,7 +601,7 @@ int main(int argc, char const *argv[]) {
 										i, j, &h, &v, &d);
 
 								// Escribimos contexto
-								putc(calculaContexto(h, v, d, SIGNO), FCtxt);
+								putc(calculaContextoSigno(h, v, significativo, signo,anchoBloque,  altoBloque), FCtxt);
 
 								bitsGenLimp += 2;
 							}
