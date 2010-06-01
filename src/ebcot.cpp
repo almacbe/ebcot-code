@@ -2,6 +2,8 @@
 #include <cmath>
 #include <fstream>
 #include <cstring>
+#include <cstdlib>
+
 #include "../headers/ImagenES.h"
 #include "../headers/FichBits.h"
 
@@ -216,7 +218,7 @@ int calculaContextoSigno(int h, int v,bool ** significativo, bool **signo,int an
 	}
 	
 	cerr << "Ha fallado al encontrar un contexto de signo\n";
-	exit(0);
+	return 0;
 }
 
 char calculaContexto(int h, int v, int d, int subbanda) {
@@ -372,7 +374,7 @@ int main(int argc, char const *argv[]) {
 	int numeroDeBloques;
 	
 	if(validarArgumentos(argc,argv)){
-		exit(1);
+		return 0;
 	}
 	
 	if(argc == 3)cod_deco=0;
@@ -728,17 +730,13 @@ int main(int argc, char const *argv[]) {
 											i, j, &h, &v, &d)) {
 								// Leemos un bit
 								PlanoDeBits[n][i][j] = LeeBit();
-								// Leer contexto asociado bit
-								// FALTA!!!
-								// contexto = getc(Fichero de contexto);
+								
 
 								if (PlanoDeBits[n][i][j]) {
 									signo[i][j] = LeeBit();
 								}
 
-								// Leer contexto asociado signo
-								// FALTA!!!
-								// contexto = getc(Fichero de contexto);
+								
 
 								// Marcamos el bit como que ya está codificado
 								codificado[i][j] = true;
@@ -788,9 +786,7 @@ int main(int argc, char const *argv[]) {
 								// contexto = getc(FCtxt)
 
 								if (PlanoDeBits[n][i][j]) {
-									// Leer contexto asociado signo
-									// FALTA!!!
-									// contexto = getc(Fichero de contexto);
+									
 									signo[i][j] = LeeBit();
 									// Marcamos el bit como significativo
 									significativo[i][j] = true;
